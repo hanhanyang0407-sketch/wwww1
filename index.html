@@ -2,17 +2,18 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>楊承翰 - 個人網站 (皇室戰爭強化版)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>楊承翰 - 皇室戰爭傳奇大廳</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --royale-blue: #3A68E3;
+            --royale-dark-blue: #1A3673;
             --royale-gold: #F2C12E;
             --wood-dark: #5C3A21;
             --wood-light: #8B5A33;
+            --bg-dark: #1E293B;
             --text-light: #FFFFFF;
-            --bg-dark: #1a2436;
         }
 
         * {
@@ -20,445 +21,534 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Noto Sans TC', sans-serif;
-            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background-color: var(--bg-dark);
             color: var(--text-light);
-            overflow-x: hidden;
-        }
-
-        /* 競技場方格背景 */
-        .bg-pattern {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
             background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.04) 2px, transparent 2px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.04) 2px, transparent 2px);
-            background-size: 60px 60px;
-            z-index: -2;
+                radial-gradient(circle at 50% 30%, rgba(58, 104, 227, 0.2) 0%, transparent 60%);
         }
 
-        /* 漂浮圖示動畫 */
-        .floating-items {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .floating-items .item {
-            position: absolute;
-            opacity: 0.15;
-            animation: floatAnim 6s ease-in-out infinite;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.8));
-        }
-        @keyframes floatAnim {
-            0% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(15deg); }
-            100% { transform: translateY(0px) rotate(0deg); }
-        }
-
-        /* ----- 首頁區塊 ----- */
-        #home {
+        /* 模擬手機螢幕容器 */
+        .app-container {
+            width: 100%;
+            max-width: 414px; /* iPhone Max 寬度 */
+            height: 100vh;
+            max-height: 896px;
+            background: linear-gradient(180deg, #2D4263 0%, #152238 100%);
             position: relative;
-            min-height: 100vh;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        @media (min-width: 415px) {
+            .app-container {
+                height: 90vh;
+                border-radius: 30px;
+                border: 8px solid #000;
+            }
+        }
+
+        /* ----- 頂部資源列 (Top Bar) ----- */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 15px 10px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+            z-index: 100;
+        }
+
+        .level-badge-small {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(180deg, #4A88FF 0%, #174291 100%);
+            border: 2px solid var(--royale-gold);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 900;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            text-shadow: 1px 1px 0 #000;
+            position: absolute;
+            left: 10px;
+            z-index: 2;
+        }
+
+        .player-name-bg {
+            background: rgba(0,0,0,0.5);
+            padding: 5px 15px 5px 35px;
+            border-radius: 20px;
+            margin-left: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-weight: 900;
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .resources {
+            display: flex;
+            gap: 10px;
+        }
+
+        .res-item {
+            background: rgba(0,0,0,0.5);
+            padding: 4px 10px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            font-weight: 900;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .res-item.gold span { color: var(--royale-gold); }
+        .res-item.gem span { color: #4EED4E; }
+
+        /* ----- 視圖容器 (切換頁面用) ----- */
+        .views-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .view {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            /* 隱藏卷軸 */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .view::-webkit-scrollbar { display: none; }
+        .view.active { display: flex; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* ==================
+           視圖 1: 戰鬥大廳 (Home)
+           ================== */
+        .arena-bg {
+            position: absolute;
+            top: 10%; width: 100%; height: 50%;
+            background-image: 
+                radial-gradient(circle at center, rgba(242, 193, 46, 0.15) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .player-showcase {
+            position: relative;
+            margin-top: 20px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .photo-placeholder {
+            width: 140px;
+            height: 140px;
+            background-color: #2C3E50;
+            border: 4px solid #000;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            color: var(--royale-gold);
+            font-weight: 900;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .trophy-badge {
+            background: linear-gradient(180deg, #F2C12E 0%, #D49A1C 100%);
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 900;
+            border: 2px solid #000;
+            margin-top: -15px;
+            z-index: 5;
+            box-shadow: 0 4px 0 #000;
+            font-size: 0.9rem;
+        }
+
+        .btn-battle {
+            background: linear-gradient(180deg, #F9D423 0%, #F2994A 100%);
+            border: 4px solid #000;
+            border-radius: 15px;
+            padding: 20px 60px;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 40px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #000, 0 15px 25px rgba(0,0,0,0.6);
+            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 4px 0 rgba(0,0,0,0.5);
+            transition: transform 0.1s;
+            position: relative;
+            z-index: 10;
+        }
+        .btn-battle:active {
+            transform: translateY(8px);
+            box-shadow: 0 0px 0 #000;
+        }
+
+        .chest-slots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-top: auto;
+            margin-bottom: 20px;
+        }
+        .chest-slot {
+            width: 70px;
+            height: 80px;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #777;
+            font-weight: 700;
+            box-shadow: inset 0 5px 10px rgba(0,0,0,0.8);
+        }
+
+        /* ==================
+           視圖 2: 卡組 (Cards)
+           ================== */
+        .cards-view-title {
+            font-size: 1.5rem;
+            color: var(--royale-gold);
+            text-shadow: 2px 2px 0 #000;
+            margin-bottom: 20px;
+        }
+
+        .deck-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+
+        .card {
+            aspect-ratio: 3/4;
+            background: linear-gradient(180deg, #A0B4D6 0%, #6B88B5 100%);
+            border: 3px solid #000;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 4px 0 #000;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            border-bottom: 8px solid var(--wood-dark);
-            z-index: 1;
+            padding: 5px;
+            transition: transform 0.2s;
         }
-
-        .hero-content {
-            position: relative;
-            z-index: 10;
-        }
-
-        .title {
-            font-size: 5rem;
-            font-weight: 900;
-            color: var(--text-light);
-            letter-spacing: 4px;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            text-shadow: 
-                -4px -4px 0 #000, 4px -4px 0 #000, -4px 4px 0 #000, 4px 4px 0 #000,
-                0px 8px 0px #000, 0px 12px 20px rgba(0,0,0,0.8);
-            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        .know-me-tag {
-            display: inline-block;
-            background: linear-gradient(180deg, #F9D423 0%, #FF4E50 100%);
-            color: #fff;
-            font-size: 1.2rem;
-            font-weight: 900;
-            padding: 8px 25px;
-            border-radius: 5px;
-            margin-bottom: 40px;
-            border: 3px solid #000;
-            box-shadow: 0 4px 0 #000;
-            transform: rotate(-3deg);
-        }
-
-        .btn-view-tags {
-            background: linear-gradient(180deg, #4A88FF 0%, var(--royale-blue) 100%);
-            color: var(--text-light);
-            border: 3px solid #000;
-            padding: 15px 45px;
-            font-size: 1.5rem;
-            font-weight: 900;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.1s ease;
-            box-shadow: 0 6px 0 #000, 0 10px 20px rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin: 0 auto;
-            text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
-        }
-
-        .btn-view-tags:active {
-            transform: translateY(6px);
-            box-shadow: 0 0px 0 #000;
-        }
-
-        @keyframes hogJump {
-            0% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-30px) scale(1.1); }
-            100% { transform: translateY(0) scale(1); }
-        }
-        .hog-jump-anim {
-            animation: hogJump 0.5s ease-in-out;
-        }
-
-        /* ----- 關於我區塊 ----- */
-        #about {
-            padding: 100px 10%;
-            position: relative;
-            z-index: 1;
-        }
-
-        .section-title {
-            font-size: 3.5rem;
-            font-weight: 900;
-            color: var(--royale-gold);
-            margin-bottom: 60px;
-            text-align: center;
-            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 6px 0 #000;
-        }
-
-        .about-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 60px;
-            align-items: center;
-            justify-content: center;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* 框架與鉚釘通用設定 */
-        .wood-frame {
-            position: relative;
-            background: var(--wood-light);
-            border: 4px solid #000;
-            border-radius: 15px;
-            box-shadow: inset 0 0 25px rgba(0,0,0,0.6), 0 10px 0 #000, 0 20px 25px rgba(0,0,0,0.5);
-        }
-        .rivet {
+        .card:active { transform: scale(0.95); }
+        .card-icon { font-size: 2rem; margin-bottom: 5px; filter: drop-shadow(0 2px 2px #000); }
+        .card-name { font-size: 0.7rem; font-weight: 900; color: #fff; text-shadow: 1px 1px 0 #000; line-height: 1.1; }
+        
+        .elixir-cost {
             position: absolute;
-            width: 14px;
-            height: 14px;
-            background: radial-gradient(circle at 4px 4px, #A0AEC0 0%, #4A5568 100%);
+            top: -5px; left: -5px;
+            width: 24px; height: 24px;
+            background: #D946EF;
             border: 2px solid #000;
             border-radius: 50%;
-            box-shadow: 0 2px 0 rgba(255,255,255,0.2);
-            z-index: 5;
-        }
-        .rivet.tl { top: 12px; left: 12px; }
-        .rivet.tr { top: 12px; right: 12px; }
-        .rivet.bl { bottom: 12px; left: 12px; }
-        .rivet.br { bottom: 12px; right: 12px; }
-
-        /* 照片放置區 */
-        .photo-wrapper {
-            flex: 1;
-            min-width: 320px;
-            max-width: 400px;
-            padding: 20px;
-        }
-
-        /* 等級徽章 */
-        .level-badge {
-            position: absolute;
-            top: -20px;
-            left: -20px;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(180deg, #4A88FF 0%, #174291 100%);
-            border: 4px solid #F2C12E;
-            border-radius: 50%;
-            color: white;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.8rem;
+            font-size: 0.8rem;
             font-weight: 900;
-            box-shadow: 0 6px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.4);
-            text-shadow: 2px 2px 0 #000;
-            z-index: 10;
+            text-shadow: 1px 1px 0 #000;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.5);
         }
 
-        .photo-placeholder {
-            width: 100%;
-            aspect-ratio: 1/1;
-            background-color: #2C3E50;
-            border: 4px solid #000;
+        /* 聖水平均花費列 */
+        .avg-elixir {
+            margin-top: 30px;
+            background: rgba(0,0,0,0.6);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 2px solid #000;
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-size: 1.5rem;
+            gap: 10px;
             font-weight: 900;
-            color: var(--royale-gold);
-            position: relative;
-            overflow: hidden;
-            border-radius: 8px;
         }
+        .avg-elixir span { color: #D946EF; font-size: 1.2rem; text-shadow: 1px 1px 0 #000; }
 
-        /* HP 血條 */
-        .hp-bar-container {
+        /* ==================
+           視圖 3: 部落/關於 (Clan)
+           ================== */
+        .clan-banner {
             width: 100%;
-            background: #000;
-            border: 3px solid #000;
-            border-radius: 8px;
-            margin-top: 15px;
-            position: relative;
-            height: 30px;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.5);
-        }
-        .hp-bar-fill {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, #53E237 0%, #2BAE12 100%);
-            border-radius: 4px;
-            box-shadow: inset 0 2px 5px rgba(255,255,255,0.4);
-        }
-        .hp-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 1rem;
-            font-weight: 900;
-            text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
-        }
-
-        /* 介紹文字區 */
-        .about-text {
-            flex: 2;
-            min-width: 320px;
-            background: linear-gradient(180deg, #3A4B6B 0%, #2A364F 100%);
+            background: var(--wood-light);
             border: 4px solid #000;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 0 #000, inset 0 2px 10px rgba(255,255,255,0.1);
-            position: relative;
-        }
-
-        /* 卡牌屬性面板 */
-        .cr-stats {
-            display: flex;
-            justify-content: space-around;
-            background: rgba(0,0,0,0.5);
-            border: 3px solid #000;
             border-radius: 12px;
-            padding: 15px 10px;
-            margin-bottom: 25px;
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
-        }
-        .stat-item { text-align: center; }
-        .stat-icon { font-size: 1.8rem; margin-bottom: 5px; display: block; filter: drop-shadow(0 2px 2px #000); }
-        .stat-label { font-size: 0.85rem; color: #A0AEC0; font-weight: 700; }
-        .stat-value { font-size: 1.3rem; color: #FFF; font-weight: 900; text-shadow: 1px 1px 0 #000; margin-top: 3px;}
-
-        .about-text p {
-            font-size: 1.2rem;
-            line-height: 1.8;
-            margin-bottom: 25px;
-            color: #E2E8F0;
-            font-weight: 700;
-        }
-
-        /* 標籤區 */
-        .hobbies { margin-top: 40px; }
-        .hobbies h3 {
-            font-size: 1.6rem;
-            color: var(--royale-gold);
+            padding: 20px;
             margin-bottom: 20px;
-            font-weight: 900;
-            text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 5px 0 #000;
+            text-align: center;
         }
+        .clan-name { font-size: 2rem; color: var(--royale-gold); text-shadow: 2px 2px 0 #000; margin-bottom: 10px;}
+        .clan-desc { font-size: 1rem; color: #E2E8F0; line-height: 1.6; }
 
-        .tags-container {
+        /* ==================
+           底部導覽列 (Bottom Nav)
+           ================== */
+        .bottom-nav {
             display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
+            background: var(--royale-dark-blue);
+            border-top: 4px solid #000;
+            height: 70px;
+            z-index: 100;
         }
-
-        .hobby-tag {
-            background: linear-gradient(180deg, #F2C12E 0%, #D49A1C 100%);
-            color: #000;
-            border: 3px solid #000;
-            padding: 10px 22px;
-            border-radius: 8px;
-            font-weight: 900;
-            font-size: 1.15rem;
-            opacity: 0;
-            transform: translateY(30px) scale(0.8);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 5px 0 #000, inset 0 2px 4px rgba(255,255,255,0.4);
+        .nav-item {
+            flex: 1;
             display: flex;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            gap: 8px;
-        }
-
-        .hobby-tag.show {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-
-        .hobby-tag:hover {
-            transform: translateY(-5px) scale(1.05);
-            background: linear-gradient(180deg, #FFE066 0%, #F2C12E 100%);
             cursor: pointer;
+            transition: background 0.2s;
+            opacity: 0.5;
+            border-right: 1px solid rgba(0,0,0,0.5);
+        }
+        .nav-item:last-child { border-right: none; }
+        .nav-item.active { opacity: 1; background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%); }
+        .nav-icon { font-size: 1.8rem; margin-bottom: 3px; filter: drop-shadow(0 2px 2px #000); }
+        .nav-text { font-size: 0.7rem; font-weight: 900; text-shadow: 1px 1px 0 #000; }
+
+        /* 國王表情包 */
+        .king-emote-btn {
+            position: absolute;
+            bottom: 85px; right: 15px;
+            width: 50px; height: 50px;
+            background: #fff;
+            border: 3px solid #000;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #000;
+            z-index: 50;
+        }
+        .king-emote-btn:active { transform: translateY(4px); box-shadow: 0 0px 0 #000; }
+        
+        .emote-bubble {
+            position: absolute;
+            bottom: 145px; right: 15px;
+            background: #fff;
+            color: #000;
+            padding: 10px 15px;
+            border-radius: 15px;
+            border-bottom-right-radius: 2px;
+            border: 3px solid #000;
+            font-weight: 900;
+            font-size: 1.2rem;
+            display: none;
+            z-index: 50;
+            animation: popBubble 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popBubble {
+            0% { transform: scale(0) translate(20px, 20px); opacity: 0; }
+            100% { transform: scale(1) translate(0, 0); opacity: 1; }
         }
 
-        @keyframes popIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            80% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        
-        @media (max-width: 768px) {
-            .title { font-size: 3.5rem; }
-            .cr-stats { flex-direction: column; gap: 15px; }
-            .about-container { flex-direction: column; text-align: center; }
-            .tags-container { justify-content: center; }
-        }
     </style>
 </head>
 <body>
 
-    <!-- 漂浮裝飾背景 -->
-    <div class="bg-pattern"></div>
-    <div class="floating-items">
-        <div class="item" style="top: 10%; left: 8%; font-size: 4rem; animation-delay: 0s;">👑</div>
-        <div class="item" style="top: 20%; right: 10%; font-size: 3rem; animation-delay: 1.5s;">💧</div>
-        <div class="item" style="top: 60%; left: 10%; font-size: 3.5rem; animation-delay: 3s;">⚔️</div>
-        <div class="item" style="top: 75%; right: 15%; font-size: 4.5rem; animation-delay: 0.8s;">🏆</div>
-        <div class="item" style="top: 85%; left: 25%; font-size: 3rem; animation-delay: 2.2s;">🐗</div>
-        <div class="item" style="top: 15%; right: 30%; font-size: 2.5rem; animation-delay: 4s;">🔨</div>
+    <div class="app-container">
+        
+        <!-- 頂部資源列 -->
+        <div class="top-bar">
+            <div style="position: relative; display: flex; align-items: center;">
+                <div class="level-badge-small">14</div>
+                <div class="player-name-bg">楊承翰</div>
+            </div>
+            <div class="resources">
+                <div class="res-item gold">
+                    💰 <span>999K</span>
+                </div>
+                <div class="res-item gem">
+                    💎 <span>500</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 視圖區 -->
+        <div class="views-container">
+            
+            <!-- View 1: 大廳 (Home) -->
+            <div class="view active" id="view-home">
+                <div class="arena-bg"></div>
+                
+                <div class="player-showcase">
+                    <div class="photo-placeholder"> [照片] </div>
+                    <div class="trophy-badge">🏆 9000 盃</div>
+                </div>
+
+                <button class="btn-battle" onclick="switchView('view-cards')">對戰</button>
+
+                <div class="chest-slots">
+                    <div class="chest-slot">解鎖中<br>2h 15m</div>
+                    <div class="chest-slot">空位</div>
+                    <div class="chest-slot">空位</div>
+                    <div class="chest-slot">空位</div>
+                </div>
+            </div>
+
+            <!-- View 2: 卡組 (Cards) -->
+            <div class="view" id="view-cards">
+                <h2 class="cards-view-title">我的戰鬥牌組</h2>
+                
+                <div class="deck-grid">
+                    <!-- Card 1 -->
+                    <div class="card">
+                        <div class="elixir-cost">4</div>
+                        <div class="card-icon">🐗</div>
+                        <div class="card-name">勇往直前</div>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="card">
+                        <div class="elixir-cost">3</div>
+                        <div class="card-icon">💻</div>
+                        <div class="card-name">程式開發</div>
+                    </div>
+                    <!-- Card 3 -->
+                    <div class="card">
+                        <div class="elixir-cost">2</div>
+                        <div class="card-icon">🎨</div>
+                        <div class="card-name">UI 設計</div>
+                    </div>
+                    <!-- Card 4 -->
+                    <div class="card">
+                        <div class="elixir-cost">5</div>
+                        <div class="card-icon">⚔️</div>
+                        <div class="card-name">策略規劃</div>
+                    </div>
+                    <!-- Card 5 -->
+                    <div class="card">
+                        <div class="elixir-cost">4</div>
+                        <div class="card-icon">🛡️</div>
+                        <div class="card-name">團隊合作</div>
+                    </div>
+                    <!-- Card 6 -->
+                    <div class="card">
+                        <div class="elixir-cost">1</div>
+                        <div class="card-icon">⚡</div>
+                        <div class="card-name">快速學習</div>
+                    </div>
+                    <!-- Card 7 -->
+                    <div class="card">
+                        <div class="elixir-cost">3</div>
+                        <div class="card-icon">🎧</div>
+                        <div class="card-name">音樂愛好</div>
+                    </div>
+                    <!-- Card 8 -->
+                    <div class="card">
+                        <div class="elixir-cost">4</div>
+                        <div class="card-icon">✈️</div>
+                        <div class="card-name">探索世界</div>
+                    </div>
+                </div>
+
+                <div class="avg-elixir">
+                    平均聖水花費: <span>3.3</span> 💧
+                </div>
+            </div>
+
+            <!-- View 3: 部落 (Clan / About) -->
+            <div class="view" id="view-clan">
+                <div class="clan-banner">
+                    <div class="clan-name">🛡️ 專屬部落</div>
+                    <div class="clan-desc">
+                        你好！我是楊承翰。<br><br>
+                        在這裡，我不只是個玩家，更是一位致力於解決問題的開發者與設計師。<br><br>
+                        歡迎隨時招募我加入你的開發部落，一起打贏下一場專案對戰！
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 國王表情包按鈕 -->
+        <div class="emote-bubble" id="emote-msg">HEHEHEHA! 👑</div>
+        <div class="king-emote-btn" onclick="showEmote()">😁</div>
+
+        <!-- 底部導覽列 -->
+        <div class="bottom-nav">
+            <div class="nav-item" id="nav-clan" onclick="switchView('view-clan')">
+                <div class="nav-icon">🛡️</div>
+                <div class="nav-text">部落</div>
+            </div>
+            <div class="nav-item active" id="nav-home" onclick="switchView('view-home')">
+                <div class="nav-icon">⚔️</div>
+                <div class="nav-text">對戰</div>
+            </div>
+            <div class="nav-item" id="nav-cards" onclick="switchView('view-cards')">
+                <div class="nav-icon">🎴</div>
+                <div class="nav-text">卡片</div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- 首頁 -->
-    <section id="home">
-        <div class="hero-content">
-            <h1 class="title">楊承翰</h1>
-            <div class="know-me-tag"># 認識我</div>
-            <br>
-            <button class="btn-view-tags" id="hog-btn" onclick="scrollToTags()">
-                查看標籤 🐗🔨
-            </button>
-        </div>
-    </section>
-
-    <!-- 關於我 -->
-    <section id="about">
-        <h2 class="section-title">ABOUT ME</h2>
-        <div class="about-container">
-            
-            <!-- 照片區 -->
-            <div class="photo-wrapper wood-frame">
-                <div class="rivet tl"></div><div class="rivet tr"></div>
-                <div class="rivet bl"></div><div class="rivet br"></div>
-                
-                <div class="level-badge">14</div>
-                
-                <div class="photo-placeholder">
-                    [ 我的照片 ]
-                </div>
-                
-                <div class="hp-bar-container">
-                    <div class="hp-bar-fill"></div>
-                    <div class="hp-text">3280 / 3280</div>
-                </div>
-            </div>
-            
-            <!-- 文字與標籤區 -->
-            <div class="about-text">
-                <div class="rivet tl"></div><div class="rivet tr"></div>
-                <div class="rivet bl"></div><div class="rivet br"></div>
-
-                <!-- 卡牌屬性面板 -->
-                <div class="cr-stats">
-                    <div class="stat-item">
-                        <span class="stat-icon">💧</span>
-                        <div class="stat-label">聖水花費</div>
-                        <div class="stat-value">4</div>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-icon">🎯</span>
-                        <div class="stat-label">攻擊目標</div>
-                        <div class="stat-value">建築物</div>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-icon">🏃</span>
-                        <div class="stat-label">移動速度</div>
-                        <div class="stat-value">極快</div>
-                    </div>
-                </div>
-
-                <p>你好！我是<strong>楊承翰</strong>。就像野豬騎士一樣，我喜歡勇往直前、跳躍障礙，並以最快的速度達成目標！</p>
-                <p>在日常與專業領域中，我重視策略、時機與團隊配合。點擊上方按鈕，看看我的專屬戰鬥標籤！</p>
-                
-                <div class="hobbies">
-                    <h3>我的戰鬥卡牌</h3>
-                    <div class="tags-container" id="tags-container">
-                        <span class="hobby-tag"><span>🐗</span> 勇往直前</span>
-                        <span class="hobby-tag"><span>🔨</span> 敲擊程式碼</span>
-                        <span class="hobby-tag"><span>⚔️</span> 策略規劃</span>
-                        <span class="hobby-tag"><span>👑</span> 追求卓越</span>
-                        <span class="hobby-tag"><span>🛡️</span> 堅實後盾</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <script>
-        function scrollToTags() {
-            const btn = document.getElementById('hog-btn');
-            btn.classList.remove('hog-jump-anim');
-            void btn.offsetWidth;
-            btn.classList.add('hog-jump-anim');
+        // 切換視圖邏輯
+        function switchView(viewId) {
+            // 隱藏所有 view
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            // 移除所有 nav 的 active 狀態
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-            setTimeout(() => {
-                document.getElementById('about').scrollIntoView({ behavior: 'smooth' });
-                
-                const tags = document.querySelectorAll('.hobby-tag');
-                tags.forEach((tag, index) => {
-                    setTimeout(() => {
-                        tag.classList.add('show');
-                    }, 400 + (index * 150)); 
-                });
-            }, 300);
+            // 顯示目標 view
+            document.getElementById(viewId).classList.add('active');
+            
+            // 更新 nav 狀態
+            if(viewId === 'view-home') document.getElementById('nav-home').classList.add('active');
+            if(viewId === 'view-cards') document.getElementById('nav-cards').classList.add('active');
+            if(viewId === 'view-clan') document.getElementById('nav-clan').classList.add('active');
+        }
+
+        // 表情包顯示邏輯
+        let emoteTimeout;
+        function showEmote() {
+            const bubble = document.getElementById('emote-msg');
+            bubble.style.display = 'block';
+            
+            clearTimeout(emoteTimeout);
+            emoteTimeout = setTimeout(() => {
+                bubble.style.display = 'none';
+            }, 2000);
         }
     </script>
 </body>

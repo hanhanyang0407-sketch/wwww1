@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>楊承翰 - 個人網站</title>
+    <title>楊承翰 - 個人網站 (皇室戰爭強化版)</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -12,7 +12,7 @@
             --wood-dark: #5C3A21;
             --wood-light: #8B5A33;
             --text-light: #FFFFFF;
-            --bg-dark: #1E293B;
+            --bg-dark: #1a2436;
         }
 
         * {
@@ -27,9 +27,36 @@
             background-color: var(--bg-dark);
             color: var(--text-light);
             overflow-x: hidden;
+        }
+
+        /* 競技場方格背景 */
+        .bg-pattern {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(58, 104, 227, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(242, 193, 46, 0.15) 0%, transparent 40%);
+                linear-gradient(rgba(255, 255, 255, 0.04) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.04) 2px, transparent 2px);
+            background-size: 60px 60px;
+            z-index: -2;
+        }
+
+        /* 漂浮圖示動畫 */
+        .floating-items {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .floating-items .item {
+            position: absolute;
+            opacity: 0.15;
+            animation: floatAnim 6s ease-in-out infinite;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.8));
+        }
+        @keyframes floatAnim {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(15deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
         }
 
         /* ----- 首頁區塊 ----- */
@@ -42,6 +69,7 @@
             align-items: center;
             text-align: center;
             border-bottom: 8px solid var(--wood-dark);
+            z-index: 1;
         }
 
         .hero-content {
@@ -56,14 +84,9 @@
             letter-spacing: 4px;
             margin-bottom: 25px;
             text-transform: uppercase;
-            /* 模擬遊戲標題字效 */
             text-shadow: 
-                -3px -3px 0 #000,
-                3px -3px 0 #000,
-                -3px 3px 0 #000,
-                3px 3px 0 #000,
-                0px 6px 0px #000,
-                0px 8px 15px rgba(0,0,0,0.6);
+                -4px -4px 0 #000, 4px -4px 0 #000, -4px 4px 0 #000, 4px 4px 0 #000,
+                0px 8px 0px #000, 0px 12px 20px rgba(0,0,0,0.8);
             animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
@@ -105,13 +128,11 @@
             box-shadow: 0 0px 0 #000;
         }
 
-        /* 躍動動畫 */
         @keyframes hogJump {
             0% { transform: translateY(0) scale(1); }
             50% { transform: translateY(-30px) scale(1.1); }
             100% { transform: translateY(0) scale(1); }
         }
-
         .hog-jump-anim {
             animation: hogJump 0.5s ease-in-out;
         }
@@ -119,17 +140,17 @@
         /* ----- 關於我區塊 ----- */
         #about {
             padding: 100px 10%;
-            background-color: var(--bg-dark);
             position: relative;
+            z-index: 1;
         }
 
         .section-title {
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: 900;
             color: var(--royale-gold);
             margin-bottom: 60px;
             text-align: center;
-            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 5px 0 #000;
+            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 6px 0 #000;
         }
 
         .about-container {
@@ -142,17 +163,56 @@
             margin: 0 auto;
         }
 
-        /* 照片放置區 (木頭框架) */
-        .photo-wrapper {
-            flex: 1;
-            min-width: 300px;
-            max-width: 380px;
+        /* 框架與鉚釘通用設定 */
+        .wood-frame {
             position: relative;
             background: var(--wood-light);
             border: 4px solid #000;
             border-radius: 15px;
-            padding: 15px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 10px 0 #000;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.6), 0 10px 0 #000, 0 20px 25px rgba(0,0,0,0.5);
+        }
+        .rivet {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: radial-gradient(circle at 4px 4px, #A0AEC0 0%, #4A5568 100%);
+            border: 2px solid #000;
+            border-radius: 50%;
+            box-shadow: 0 2px 0 rgba(255,255,255,0.2);
+            z-index: 5;
+        }
+        .rivet.tl { top: 12px; left: 12px; }
+        .rivet.tr { top: 12px; right: 12px; }
+        .rivet.bl { bottom: 12px; left: 12px; }
+        .rivet.br { bottom: 12px; right: 12px; }
+
+        /* 照片放置區 */
+        .photo-wrapper {
+            flex: 1;
+            min-width: 320px;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        /* 等級徽章 */
+        .level-badge {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(180deg, #4A88FF 0%, #174291 100%);
+            border: 4px solid #F2C12E;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: 900;
+            box-shadow: 0 6px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.4);
+            text-shadow: 2px 2px 0 #000;
+            z-index: 10;
         }
 
         .photo-placeholder {
@@ -168,17 +228,65 @@
             color: var(--royale-gold);
             position: relative;
             overflow: hidden;
+            border-radius: 8px;
         }
 
+        /* HP 血條 */
+        .hp-bar-container {
+            width: 100%;
+            background: #000;
+            border: 3px solid #000;
+            border-radius: 8px;
+            margin-top: 15px;
+            position: relative;
+            height: 30px;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.5);
+        }
+        .hp-bar-fill {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #53E237 0%, #2BAE12 100%);
+            border-radius: 4px;
+            box-shadow: inset 0 2px 5px rgba(255,255,255,0.4);
+        }
+        .hp-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 1rem;
+            font-weight: 900;
+            text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+        }
+
+        /* 介紹文字區 */
         .about-text {
             flex: 2;
-            min-width: 300px;
+            min-width: 320px;
             background: linear-gradient(180deg, #3A4B6B 0%, #2A364F 100%);
             border: 4px solid #000;
             padding: 40px;
             border-radius: 15px;
-            box-shadow: 0 8px 0 #000;
+            box-shadow: 0 10px 0 #000, inset 0 2px 10px rgba(255,255,255,0.1);
+            position: relative;
         }
+
+        /* 卡牌屬性面板 */
+        .cr-stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(0,0,0,0.5);
+            border: 3px solid #000;
+            border-radius: 12px;
+            padding: 15px 10px;
+            margin-bottom: 25px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+        }
+        .stat-item { text-align: center; }
+        .stat-icon { font-size: 1.8rem; margin-bottom: 5px; display: block; filter: drop-shadow(0 2px 2px #000); }
+        .stat-label { font-size: 0.85rem; color: #A0AEC0; font-weight: 700; }
+        .stat-value { font-size: 1.3rem; color: #FFF; font-weight: 900; text-shadow: 1px 1px 0 #000; margin-top: 3px;}
 
         .about-text p {
             font-size: 1.2rem;
@@ -189,12 +297,9 @@
         }
 
         /* 標籤區 */
-        .hobbies {
-            margin-top: 40px;
-        }
-        
+        .hobbies { margin-top: 40px; }
         .hobbies h3 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             color: var(--royale-gold);
             margin-bottom: 20px;
             font-weight: 900;
@@ -211,14 +316,17 @@
             background: linear-gradient(180deg, #F2C12E 0%, #D49A1C 100%);
             color: #000;
             border: 3px solid #000;
-            padding: 10px 25px;
+            padding: 10px 22px;
             border-radius: 8px;
             font-weight: 900;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             opacity: 0;
             transform: translateY(30px) scale(0.8);
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 0 #000;
+            box-shadow: 0 5px 0 #000, inset 0 2px 4px rgba(255,255,255,0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .hobby-tag.show {
@@ -240,13 +348,26 @@
         
         @media (max-width: 768px) {
             .title { font-size: 3.5rem; }
-            .btn-view-tags { font-size: 1.2rem; }
+            .cr-stats { flex-direction: column; gap: 15px; }
             .about-container { flex-direction: column; text-align: center; }
             .tags-container { justify-content: center; }
         }
     </style>
 </head>
 <body>
+
+    <!-- 漂浮裝飾背景 -->
+    <div class="bg-pattern"></div>
+    <div class="floating-items">
+        <div class="item" style="top: 10%; left: 8%; font-size: 4rem; animation-delay: 0s;">👑</div>
+        <div class="item" style="top: 20%; right: 10%; font-size: 3rem; animation-delay: 1.5s;">💧</div>
+        <div class="item" style="top: 60%; left: 10%; font-size: 3.5rem; animation-delay: 3s;">⚔️</div>
+        <div class="item" style="top: 75%; right: 15%; font-size: 4.5rem; animation-delay: 0.8s;">🏆</div>
+        <div class="item" style="top: 85%; left: 25%; font-size: 3rem; animation-delay: 2.2s;">🐗</div>
+        <div class="item" style="top: 15%; right: 30%; font-size: 2.5rem; animation-delay: 4s;">🔨</div>
+    </div>
+
+    <!-- 首頁 -->
     <section id="home">
         <div class="hero-content">
             <h1 class="title">楊承翰</h1>
@@ -258,27 +379,63 @@
         </div>
     </section>
 
+    <!-- 關於我 -->
     <section id="about">
         <h2 class="section-title">ABOUT ME</h2>
         <div class="about-container">
-            <div class="photo-wrapper">
+            
+            <!-- 照片區 -->
+            <div class="photo-wrapper wood-frame">
+                <div class="rivet tl"></div><div class="rivet tr"></div>
+                <div class="rivet bl"></div><div class="rivet br"></div>
+                
+                <div class="level-badge">14</div>
+                
                 <div class="photo-placeholder">
                     [ 我的照片 ]
                 </div>
+                
+                <div class="hp-bar-container">
+                    <div class="hp-bar-fill"></div>
+                    <div class="hp-text">3280 / 3280</div>
+                </div>
             </div>
             
+            <!-- 文字與標籤區 -->
             <div class="about-text">
+                <div class="rivet tl"></div><div class="rivet tr"></div>
+                <div class="rivet bl"></div><div class="rivet br"></div>
+
+                <!-- 卡牌屬性面板 -->
+                <div class="cr-stats">
+                    <div class="stat-item">
+                        <span class="stat-icon">💧</span>
+                        <div class="stat-label">聖水花費</div>
+                        <div class="stat-value">4</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">🎯</span>
+                        <div class="stat-label">攻擊目標</div>
+                        <div class="stat-value">建築物</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">🏃</span>
+                        <div class="stat-label">移動速度</div>
+                        <div class="stat-value">極快</div>
+                    </div>
+                </div>
+
                 <p>你好！我是<strong>楊承翰</strong>。就像野豬騎士一樣，我喜歡勇往直前、跳躍障礙，並以最快的速度達成目標！</p>
                 <p>在日常與專業領域中，我重視策略、時機與團隊配合。點擊上方按鈕，看看我的專屬戰鬥標籤！</p>
                 
                 <div class="hobbies">
-                    <h3>我的戰鬥標籤</h3>
+                    <h3>我的戰鬥卡牌</h3>
                     <div class="tags-container" id="tags-container">
-                        <span class="hobby-tag">🐗 勇往直前</span>
-                        <span class="hobby-tag">🔨 敲擊程式碼</span>
-                        <span class="hobby-tag">⚔️ 策略規劃</span>
-                        <span class="hobby-tag">👑 追求卓越</span>
-                        <span class="hobby-tag">🛡️ 堅實後盾</span>
+                        <span class="hobby-tag"><span>🐗</span> 勇往直前</span>
+                        <span class="hobby-tag"><span>🔨</span> 敲擊程式碼</span>
+                        <span class="hobby-tag"><span>⚔️</span> 策略規劃</span>
+                        <span class="hobby-tag"><span>👑</span> 追求卓越</span>
+                        <span class="hobby-tag"><span>🛡️</span> 堅實後盾</span>
                     </div>
                 </div>
             </div>
